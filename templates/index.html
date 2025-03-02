@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input, button {
+            padding: 10px;
+            margin-top: 5px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="date"] {
+            max-width: 200px;
+        }
+        input[type="time"] {
+            max-width: 150px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .left, .right {
+            width: 48%;
+        }
+        .attendance-list {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .attendance-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .attendance-list li {
+            background-color: #f2f2f2;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/socket_client.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('date');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.setAttribute('max', today);
+            }
+
+            {% if lecture_name and date and time %}
+                // Setup Socket.IO for receiving live attendance updates
+                const socket = setupSocketIO('{{ lecture_name }}', '{{ date }}', '{{ time }}');
+            {% endif %}
+        });
+    </script>
+</head>
+<body>
+    <h1>Generate QR Code for Attendance</h1>
+    {% if show_form %}
+        <form method="POST" action="/">
+            <label for="lecture_name">Lecture Name:</label>
+            <input type="text" id="lecture_name" name="lecture_name" required><br>
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required><br>
+            <label for="time">Time:</label>
+            <input type="time" id="time" name="time" required><br>
+            <button type="submit">Generate QR Code</button>
+        </form>
+    {% endif %}
+    <div class="container">
+        <div class="left">
+            {% if qr_code %}
+                <h2>Scan this QR Code</h2>
+                <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+                <h3>Lecture: {{ lecture_name }}</h3>
+                <h3>Date: {{ date }}</h3>
+                <h3>Time: {{ time }}</h3>
+            {% endif %}
+        </div>
+        <div class="right">
+            <div class="attendance-list">
+                <h2>Live Attendance</h2>
+                <ul>
+                    {% for record in records %}
+                        <li>{{ record.student_name }} ({{ record.roll_no }})</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

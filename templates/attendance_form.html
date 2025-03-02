@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button {
+            padding: 10px;
+            margin-top: 5px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .success-message {
+            color: green;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Submit Attendance for {{ lecture_name }}</h1>
+    <form method="POST" action="/attendance-form" enctype="multipart/form-data">
+        <input type="hidden" name="lecture_name" value="{{ lecture_name }}">
+        <input type="hidden" name="date" value="{{ date }}">
+        <input type="hidden" name="time" value="{{ time }}">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="roll_no">Roll No:</label>
+        <input type="text" id="roll_no" name="roll_no" required><br>
+        <label for="photo">Photo:</label>
+        <input type="file" id="photo" name="photo" accept="image/*" required><br>
+        <button type="submit">Submit Attendance</button>
+    </form>
+    {% if success_message %}
+        <div class="success-message">{{ success_message }}</div>
+    {% endif %}
+</body>
+</html>
